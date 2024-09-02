@@ -1,6 +1,6 @@
 import json
 class settings:
-    sessions_path:str='sessions.sdb'
+    sessions_path:str='sessions.ses'
     lang_code:str='en'
     system_lang_code:str='en'
     def __init__(self) -> None:
@@ -16,7 +16,7 @@ class settings:
         if not file_exist:
             with open('settings.json','w',encoding='utf-8') as save:
                 settings_dict={
-                        "sessions_path":'sessions.sdb',
+                        "sessions_path":'sessions.ses',
                         "lang_code":'en',
                         "system_lang_code":'en',
                         }
