@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Grampo',
-    version='1.0.0',
+    version='1.0.1',
     author='Abbas Bachari',
     author_email='abbas-bachari@hotmail.com',
     description='A Python Telegram API Library , with official Telegram APIs.',
