@@ -282,7 +282,7 @@ class TelegramApp(TelegramClient):
     
     async def convert_to_tdata(self,output_dir:str,new_session=False,password:str=None) -> TDesktop:
         output_path=os.path.join(output_dir,self.phone,'tdata')
-        conn=await self.ConnectTelegram(self._phone) 
+        conn=await self.connect_telegram(self._phone) 
         if conn:
             password = password if password else conn.password
             tdesk = await self.ToTDesktop(
@@ -372,9 +372,9 @@ class TelegramApp(TelegramClient):
         return result
 
 
-    async def get_WebView_auth_url(self,
+    async def get_webview_auth_url(self,
                                    bot_username:str,
-                                   is_MiniApp:bool,
+                                   is_miniapp:bool,
                                    short_name:str|None=None,
                                    app_url:str|None=None,
                                    peer:str|None=None,
@@ -389,7 +389,7 @@ class TelegramApp(TelegramClient):
         
         
             
-        if is_MiniApp:
+        if is_miniapp:
             entyty=await self.get_entity(bot_username)
             bot_app= InputBotAppShortName( bot_id=InputUser(user_id=entyty.id,access_hash= entyty.access_hash), short_name=short_name)
             await asyncio.sleep(1)        
