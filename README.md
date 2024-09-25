@@ -24,12 +24,20 @@ pip install git+https://github.com/abbas-bachari/Grampo.git
 
 ```python
 import asyncio
-from Grampo import TelegramApp
+
+from Grampo import (
+    TelegramApp,
+    Sessions,
+    CreateNewSession,
+    UseCurrentSession,
+    GrampoOptions
+    )
+
 
 
 
 async def main():
-    telegram=TelegramApp(None,['http','127.0.0.1',10809])
+    telegram=TelegramApp(None,['http','127.0.0.1',10809],options=GrampoOptions())
 
     # If there is a session, it will start it, otherwise,
     # a new session will be created and saved.
@@ -86,7 +94,7 @@ async def main():
     print(me.first_name)
     
     # Use the current session
-    tdesk=await telegram.convert_to_tdata('E:/TelegramApp/TD-DATAS')
+    tdesk=await telegram.convert_to_tdata('E:/Telegram/TD-DATAS')
     
     
     # # Create a new desktop session
@@ -144,8 +152,8 @@ if __name__=="__main__":
 ### Manage saved sessions:
 
 ```python
-from Grampo import SESSIONS
 
+SESSIONS=Sessions('sessions.ses')
 
 session=SESSIONS.get_one(phone='+9811122233') 
 print(f"Name: {session.first_name:<15} | Is bot: {'YES' if session.is_bot else 'NO':<3} | status: {session.status}")

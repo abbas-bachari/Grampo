@@ -6,7 +6,7 @@ from .tl import TelegramClient
 from .tl.telethon import types,functions,utils
 from .ut.api import API, CreateNewSession, UseCurrentSession
 from .tl.configs import StringSession
-from .ut.settings import Settings
+from .config import  GrampoOptions
 import base64,struct
 import shutil,os,asyncio
 from telethon.tl.functions.messages import RequestWebViewRequest,RequestAppWebViewRequest
@@ -17,24 +17,14 @@ from telethon.tl.types import (
     InputUser,
     )
 
-
-
-DATA_DIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'data') 
-
-SESSIONS=Sessions(Settings.sessions_path).create_table()
-
-
-
-
-
-
 class TelegramApp(TelegramClient):
-    def __init__(self,phone:str,proxy:dict|list|None=None):
+    def __init__(self,phone:str,proxy:dict|list|None=None,options:GrampoOptions|None=None):
         self.phone=phone
         self.proxy=proxy
         self.session_password:str=''
         self.is_online=False
-            
+        self.options =options if options else GrampoOptions()
+        self.SESSIONS=Sessions(self.options.sessions_path).create_table()
        
         
     
@@ -93,10 +83,11 @@ class TelegramApp(TelegramClient):
                     "device_model":api_info.device_model,
                     "system_version":api_info.system_version,
                     "app_version":api_info.app_version,
-                    "status":"ACTIVE"
+                    "status":"ACTIVE",
+                    "is_bot": me.bot
                     }
-        SESSIONS.delete_data(phone=self.phone)
-        SESSIONS.insert_one(account_data)
+        self.SESSIONS.delete(phone=self.phone)
+        self.SESSIONS.insert_one(account_data)
         signed, name = 'Signed in successfully as ', utils.get_display_name(me)
         try:
             print(signed, name)
@@ -110,8 +101,8 @@ class TelegramApp(TelegramClient):
             return True
 
         android_api= API.TelegramAndroid.Generate()
-        android_api.lang_code=Settings.lang_code
-        android_api.system_lang_code=Settings.system_lang_code
+        android_api.lang_code=self.options.lang_code
+        android_api.system_lang_code=self.options.system_lang_code
         super().__init__(None, api=android_api,proxy=self.proxy)
         await self.connect()
         
@@ -198,7 +189,7 @@ class TelegramApp(TelegramClient):
         if ":" in phone:
             phone=f"BOT-{phone.split(':')[0]}"
         
-        session=SESSIONS.get_one(phone=phone)
+        session=self.SESSIONS.get_one(phone=phone)
         self.exist_session=session.has_data
         if session.has_data:
             if self.is_online:
@@ -210,8 +201,8 @@ class TelegramApp(TelegramClient):
                 device_model=session.device_model,
                 system_version=session.system_version,
                 app_version=session.app_version, 
-                lang_code=Settings.lang_code, 
-                system_lang_code=Settings.system_lang_code
+                lang_code=self.options.lang_code, 
+                system_lang_code=self.options.system_lang_code
                 )
             self.session_password=session.password
             super().__init__(StringSession(session.telethon), api=android_api,proxy=self.proxy)
@@ -219,12 +210,12 @@ class TelegramApp(TelegramClient):
             self._phone=phone
             await self.connect()
             if await self.is_user_authorized():
-                SESSIONS.update({"status":'ACTIVE'},phone=self.phone)
+                self.SESSIONS.update({"status":'ACTIVE'},phone=self.phone)
                 self.is_online=True
                 return session
 
             else:
-                SESSIONS.update({"status":'INACTIVE'},phone=self.phone)
+                self.SESSIONS.update({"status":'INACTIVE'},phone=self.phone)
 
                 return False
         
@@ -257,7 +248,7 @@ class TelegramApp(TelegramClient):
         
 
         if phone and not code :
-            return await self.NewRegister(phone)
+            return await self.new_register(phone)
 
         
         elif code:
@@ -301,9 +292,9 @@ class TelegramApp(TelegramClient):
     
 
     async def re_new_session(self,password:str|None=None):
-        conn=await self.ConnectTelegram() 
+        conn=await self.connect_telegram() 
         if conn:
-            new_sessions=Sessions(f"new-{Settings.sessions_path}").create_table()
+            new_sessions=Sessions(f"new-{self.options.sessions_path}").create_table()
             android_api= API.TelegramAndroid.Generate(unique_id=self.phone)
             client:TelegramClient=await self.QRLoginToNewClient(None,android_api,password=password)
             me=await client.get_me()
@@ -324,7 +315,8 @@ class TelegramApp(TelegramClient):
                 "device_model":android_api.device_model,
                 "system_version":android_api.system_version,
                 "app_version":android_api.app_version,
-                "status":"ACTIVE"
+                "status":"ACTIVE",
+                "is_bot": me.bot
                 }
             
             
@@ -353,13 +345,13 @@ class TelegramApp(TelegramClient):
         if result.has_password:
             res = await self(functions.account.ResetPasswordRequest())
             if res.__class__.__name__=="ResetPasswordOk":
-                SESSIONS.update({"password":''},phone=self.phone)
+                self.SESSIONS.update({"password":''},phone=self.phone)
                 return True,"ResetPasswordOk"
             
             return False, res
 
         else:
-            SESSIONS.update({"password":''},phone=self.phone)
+            self.SESSIONS.update({"password":''},phone=self.phone)
             return True,"NoPassword"
         
     
@@ -368,7 +360,7 @@ class TelegramApp(TelegramClient):
         result =await self.edit_2fa(current_password=current_password, new_password=new_password)
         
         if result is True:
-            SESSIONS.update({"password":new_password},phone=self.phone)
+            self.SESSIONS.update({"password":new_password},phone=self.phone)
         return result
 
 
