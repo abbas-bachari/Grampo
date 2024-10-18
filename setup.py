@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
+requires=[r.strip() for r in open('requirements.txt','r',encoding='utf-8').readlines() if r.strip()]
+requires=[]
 
 setup(
     name='Grampo',
-    version='1.0.2',
+    version='1.0.6',
     author='Abbas Bachari',
     author_email='abbas-bachari@hotmail.com',
     description='A Python Telegram API Library , with official Telegram APIs.',
@@ -20,21 +22,13 @@ setup(
    
 },
     
-    install_requires=[
-                    
-                    'PyQt5',
-                    'TgCrypto',
-                    'telethon',
-                    'psutil',
-                    'python-socks[asyncio]',
-                    'loguru'
-                    ],
+    install_requires=requires ,
     
     keywords=[
         'telethon',
         'telegram',
         'telegram multi session', 
-        'telegram-pythom', 
+        'telegram-python', 
         'opentele',  
         'api', 
         'abbas bachari'],
@@ -44,7 +38,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python'
-        'Programming Language :: Python 3.11'
+       
     ],
 )
 

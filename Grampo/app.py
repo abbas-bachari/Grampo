@@ -15,17 +15,40 @@ from telethon.tl.types import (
     Message,
     InputBotAppShortName,
     InputUser,
+   
+    
     )
 
+__send_code_type__={
+    "SentCodeTypeApp":"Telegram",	
+    "SentCodeTypeCall":"Call",
+    "SentCodeTypeEmailCode":"Email",
+    "SentCodeTypeFirebaseSms":"Firebase Sms",
+    "SentCodeTypeFlashCall":"Flash Call",
+    "SentCodeTypeFragmentSms":"Fragment Sms",
+    "SentCodeTypeMissedCall":"Missed Call",
+    "SentCodeTypeSetUpEmailRequired":"SetUp Email Required",
+    "SentCodeTypeSms":"SMS",
+    "SentCodeTypeSmsPhrase":"Sms Phrase",
+    "SentCodeTypeSmsWord" :"Sms Word"
+    	
+
+    
+}
+def send_code_text(SentCodeType:str):
+    _TYP=__send_code_type__.get(SentCodeType,SentCodeType)
+    return f"The confirmation code was sent via: {_TYP}"
+
+
 class TelegramApp(TelegramClient):
-    def __init__(self,phone:str,proxy:dict|list|None=None,options:GrampoOptions|None=None):
-        self.phone=phone
+    def __init__(self,phone:str=None,proxy:dict|list|None=None,options:GrampoOptions|None=None):
+        self.phone:str=phone
         self.proxy=proxy
         self.session_password:str=''
         self.is_online=False
         self.options =options if options else GrampoOptions()
         self.SESSIONS=Sessions(self.options.sessions_path).create_table()
-       
+        
         
     
     
@@ -34,7 +57,11 @@ class TelegramApp(TelegramClient):
     
     
     def __call_phone(self,phone:str=None )-> str:
-        return phone or self.phone or  input('Please enter your phone (or bot): ')
+        if not phone:
+            phone = self.phone if self.phone else getattr(self,'_phone',None)
+         
+        
+        return phone if phone else  input('Please enter your phone (or bot): ')
        
     
     def __call_code(self)-> str:
@@ -56,8 +83,8 @@ class TelegramApp(TelegramClient):
 
 
     async def start_telegram(self,phone:str=None, first_name:str=None, last_name:str=None, max_attempts=5):
-        conn=await self.connect_telegram(phone)
-        if not conn:
+        await self.connect_telegram(phone)
+        if not self.is_online:
             conn=await self.new_register(phone, first_name, last_name,max_attempts)
 
         if conn:
@@ -66,48 +93,47 @@ class TelegramApp(TelegramClient):
     
     async def __save_session(self,api_info:API.TelegramAndroid):
         me=await self.get_me()
-        self.phone=f"+{me.phone}" if me.phone else f"BOT-{me.id}"
-        telethon_session=StringSession.save(self.session)
-        account_data={
-                    "phone":self.phone,
-                    "dc_id":self.session.dc_id or 1  ,
-                    "user_id":me.id,
-                    "username":(me.username or ""),
-                    "first_name":me.first_name,
-                    "last_name":(me.last_name or "") ,
-                    "password" :self.session_password,
-                    "api_id":self.api_id,
-                    "api_hash":self.api_hash,
-                    "telethon":telethon_session,
-                    "pyrogram":self.pyrogram_string_session(self,me.id),
-                    "device_model":api_info.device_model,
-                    "system_version":api_info.system_version,
-                    "app_version":api_info.app_version,
-                    "status":"ACTIVE",
-                    "is_bot": me.bot
-                    }
-        self.SESSIONS.delete(phone=self.phone)
-        self.SESSIONS.insert_one(account_data)
-        signed, name = 'Signed in successfully as ', utils.get_display_name(me)
-        try:
-            print(signed, name)
-        except UnicodeEncodeError:
-            print(signed, name.encode('utf-8', errors='ignore').decode('ascii', errors='ignore'))
-        self.is_online=True
+        if me:
+            self.is_online=True
+
+            self.phone=f"+{me.phone}" if me.phone else f"BOT-{me.id}"
+            telethon_session=StringSession.save(self.session)
+            account_data={
+                        "phone":self.phone,
+                        "dc_id":self.session.dc_id or 1  ,
+                        "user_id":me.id,
+                        "username":(me.username or ""),
+                        "first_name":me.first_name,
+                        "last_name":(me.last_name or "") ,
+                        "password" :self.session_password,
+                        "api_id":self.api_id,
+                        "api_hash":self.api_hash,
+                        "telethon":telethon_session,
+                        "pyrogram":self.pyrogram_string_session(self,me.id),
+                        "device_model":api_info.device_model,
+                        "system_version":api_info.system_version,
+                        "app_version":api_info.app_version,
+                        "status":"ACTIVE",
+                        "is_bot": me.bot
+                        }
+            self.SESSIONS.delete(phone=self.phone)
+            self.SESSIONS.insert_one(account_data)
+            signed, name = 'Signed in successfully as ', utils.get_display_name(me)
+            try:
+                print(signed, name)
+            except UnicodeEncodeError:
+                print(signed, name.encode('utf-8', errors='ignore').decode('ascii', errors='ignore'))
+            
     
     async def new_register(self,phone:str=None, first_name:str=None, last_name:str=None, max_attempts=5):
         
         if self.is_online:
             return True
 
-        android_api= API.TelegramAndroid.Generate()
-        android_api.lang_code=self.options.lang_code
-        android_api.system_lang_code=self.options.system_lang_code
-        super().__init__(None, api=android_api,proxy=self.proxy)
-        await self.connect()
+        
         
         bot_token=''
-        if ':' in phone:
+        if phone and ':' in phone:
             bot_token = phone
         
         while not phone:
@@ -121,6 +147,32 @@ class TelegramApp(TelegramClient):
             phone = utils.parse_phone(value) 
 
         
+        if phone and phone.isdigit():
+            phone= f"+{phone}"
+     
+        await self.connect_telegram(phone)
+        if self.is_online:
+            me=await self.get_me()
+            signed, name = 'Account %s already exists', utils.get_display_name(me)
+            try:
+                print(signed % name)
+            except UnicodeEncodeError:
+                print(signed % (name.encode('utf-8', errors='ignore').decode('ascii', errors='ignore')))
+            
+            
+            return
+        
+        
+        
+        unique_id                    = f"BOT-{bot_token.split(':')[0]}" if bot_token else phone
+        android_api                  = API.TelegramAndroid.Generate(unique_id=unique_id)
+        android_api.lang_code        = self.options.lang_code
+        android_api.system_lang_code = self.options.system_lang_code
+        
+        
+        super().__init__(None, api=android_api,proxy=self.proxy)
+        await self.connect()
+        
         if bot_token:
             await self.sign_in(bot_token=bot_token)
             await self.__save_session(android_api)
@@ -132,7 +184,9 @@ class TelegramApp(TelegramClient):
         two_step_detected = False
 
         cod=await self.send_code_request(phone)
-        print(f'Send code type: {cod.type.__class__.__name__}')
+        
+        print(send_code_text(cod.type.__class__.__name__))
+       
         _code=''
         while attempts < max_attempts:
             try:
@@ -146,7 +200,7 @@ class TelegramApp(TelegramClient):
                     raise errors.PhoneCodeEmptyError(request=None)
 
                 _code=value
-                me = await self.sign_in(phone, code=value)
+                await self.sign_in(phone, code=value)
                 break
             except errors.SessionPasswordNeededError:
                 two_step_detected = True
@@ -157,7 +211,7 @@ class TelegramApp(TelegramClient):
                     errors.PhoneCodeInvalidError):
                 print('Invalid code. Please try again.', file=sys.stderr)
             except errors.PhoneNumberUnoccupiedError:
-                me=await self.__sign_up(_code,first_name,last_name)
+                await self.__sign_up(_code,first_name,last_name)
                 break
             attempts += 1
         else:
@@ -168,7 +222,7 @@ class TelegramApp(TelegramClient):
             for _ in range(max_attempts):
                 try:
                     value = self.__call_password()
-                    me = await self.sign_in(phone=phone, password=value)
+                    await self.sign_in(phone=phone, password=value)
                     self.session_password=value
                     break
                 except errors.PasswordHashInvalidError:
@@ -182,19 +236,28 @@ class TelegramApp(TelegramClient):
 
     
     async def connect_telegram(self,phone:str=None):
+
+        if self.is_connected():
+            if await self.is_user_authorized():
+                self.is_online=True
+                return True
         
-            
         
-        phone=self.__call_phone(phone)
+        self.is_online=False
+
+        
+        if not phone:
+            phone=self.phone if self.phone else getattr(self,'_phone',None) 
+        
+        if not phone:return
+        
+        
         if ":" in phone:
             phone=f"BOT-{phone.split(':')[0]}"
         
         session=self.SESSIONS.get_one(phone=phone)
         self.exist_session=session.has_data
         if session.has_data:
-            if self.is_online:
-                return session
-            
             android_api= API.TelegramAndroid(
                 api_id=session.api_id,
                 api_hash=session.api_hash,
@@ -207,17 +270,21 @@ class TelegramApp(TelegramClient):
             self.session_password=session.password
             super().__init__(StringSession(session.telethon), api=android_api,proxy=self.proxy)
             self.phone=phone
-            self._phone=phone
+            
             await self.connect()
             if await self.is_user_authorized():
                 self.SESSIONS.update({"status":'ACTIVE'},phone=self.phone)
                 self.is_online=True
-                return session
+                me=await self.get_me()
+                self._phone=f"+{me.phone}"
+
+                return True
 
             else:
                 self.SESSIONS.update({"status":'INACTIVE'},phone=self.phone)
+                self.is_online=False
 
-                return False
+       
         
             
     async def get_login_code(self):
@@ -440,3 +507,4 @@ class TelegramApp(TelegramClient):
         except Exception as e:
             print(e)
             return ''
+
