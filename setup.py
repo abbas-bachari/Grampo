@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 requires=[r.strip() for r in open('requirements.txt','r',encoding='utf-8').readlines() if r.strip()]
-requires=[]
+# requires=[]
 
 setup(
     name='Grampo',
