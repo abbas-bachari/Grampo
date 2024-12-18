@@ -273,10 +273,13 @@ class TelegramApp(TelegramClient):
             
             await self.connect()
             if await self.is_user_authorized():
-                self.SESSIONS.update({"status":'ACTIVE'},phone=self.phone)
+                
                 self.is_online=True
                 me=await self.get_me()
                 self._phone=f"+{me.phone}"
+
+                self.SESSIONS.update({"status":'ACTIVE',"first_name":me.first_name or "","last_name":me.last_name or "","username":me.username or ""},phone=self.phone)
+
 
                 return True
 
