@@ -349,8 +349,9 @@ class TelegramApp(TelegramClient):
         output_path=os.path.join(output_dir,self.phone,'tdata')
         conn=await self.connect_telegram(self._phone) 
         if conn:
-            sess=self.SESSIONS.get_one(phone=self.phone)
-            password = password if password else (sess.password if sess.password else None)
+            if not password:
+                sess=self.SESSIONS.get_one(phone=self.phone)
+                password = sess.password if sess.password else None
             tdesk = await self.ToTDesktop(
                                         flag=CreateNewSession if new_session else UseCurrentSession  ,
                                         api=API.TelegramDesktop() ,
@@ -369,6 +370,9 @@ class TelegramApp(TelegramClient):
     async def renew_session(self,save_path:str="sessions.ses",password:str|None=None):
         conn=await self.connect_telegram() 
         if conn:
+            if not password:
+                sess=self.SESSIONS.get_one(phone=self.phone)
+                password = sess.password if sess.password else None
             
             new_sessions=Sessions(save_path).create_table()
             android_api= API.TelegramAndroid.Generate(unique_id=self.phone)
