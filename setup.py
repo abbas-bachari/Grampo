@@ -4,7 +4,7 @@ requires=[r.strip() for r in open('requirements.txt','r',encoding='utf-8').readl
 
 setup(
     name='Grampo',
-    version='1.0.6',
+    version='1.0.7',
     author='Abbas Bachari',
     author_email='abbas-bachari@hotmail.com',
     description='A Python Telegram API Library , with official Telegram APIs.',
