@@ -358,10 +358,11 @@ class TelegramApp(TelegramClient):
             
     
 
-    async def re_new_session(self,password:str|None=None):
+    async def renew_session(self,save_path:str="new-sessions.ses",password:str|None=None):
         conn=await self.connect_telegram() 
         if conn:
-            new_sessions=Sessions(f"new-{self.options.sessions_path}").create_table()
+            
+            new_sessions=Sessions(save_path).create_table()
             android_api= API.TelegramAndroid.Generate(unique_id=self.phone)
             client:TelegramClient=await self.QRLoginToNewClient(None,android_api,password=password)
             me=await client.get_me()
