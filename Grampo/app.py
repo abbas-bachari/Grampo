@@ -84,11 +84,13 @@ class TelegramApp(TelegramClient):
 
     async def start_telegram(self,phone:str=None, first_name:str=None, last_name:str=None, max_attempts=5):
         await self.connect_telegram(phone)
-        if not self.is_online:
-            conn=await self.new_register(phone, first_name, last_name,max_attempts)
+        
+        
+        if self.is_online: return True
+        
+        return await self.new_register(phone, first_name, last_name,max_attempts)
 
-        if conn:
-            return conn
+        
     
     
     async def __save_session(self,api_info:API.TelegramAndroid):
@@ -246,15 +248,16 @@ class TelegramApp(TelegramClient):
         self.is_online=False
 
         
-        if not phone:
-            phone=self.phone if self.phone else getattr(self,'_phone',None) 
+        if not phone: phone=self.phone if self.phone else getattr(self,'_phone',None) 
         
-        if not phone:return
+        if not phone:return False
         
         
-        if ":" in phone:
-            phone=f"BOT-{phone.split(':')[0]}"
+        phone=f"BOT-{phone.split(':')[0]}"  if ":" in phone else phone
         
+
+
+
         session=self.SESSIONS.get_one(phone=phone)
         self.exist_session=session.has_data
         if session.has_data:
@@ -279,13 +282,14 @@ class TelegramApp(TelegramClient):
                 self._phone=f"+{me.phone}"
 
                 self.SESSIONS.update({"status":'ACTIVE',"first_name":me.first_name or "","last_name":me.last_name or "","username":me.username or ""},phone=self.phone)
-
-
                 return True
 
             else:
                 self.SESSIONS.update({"status":'INACTIVE'},phone=self.phone)
                 self.is_online=False
+        
+        
+        return False
 
        
         
@@ -345,7 +349,8 @@ class TelegramApp(TelegramClient):
         output_path=os.path.join(output_dir,self.phone,'tdata')
         conn=await self.connect_telegram(self._phone) 
         if conn:
-            password = password if password else conn.password
+            sess=self.SESSIONS.get_one(phone=self.phone)
+            password = password if password else (sess.password if sess.password else None)
             tdesk = await self.ToTDesktop(
                                         flag=CreateNewSession if new_session else UseCurrentSession  ,
                                         api=API.TelegramDesktop() ,
