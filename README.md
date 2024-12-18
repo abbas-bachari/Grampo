@@ -1,4 +1,4 @@
-[![Grampo](https://img.shields.io/badge/Grampo%20-Version%201.0.7-green?style=plastic&logo=codemagic)](https://python.org)
+[![Grampo](https://img.shields.io/badge/Grampo%20-Version%201.0.8-green?style=plastic&logo=codemagic)](https://python.org)
 
 
 
