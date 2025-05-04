@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
-requires=[r.strip() for r in open('requirements.txt','r',encoding='utf-8').readlines() if r.strip()]
-# requires=[]
+
+requires=["loguru","PyQt5","TgCrypto","telethon",'psutil',"python-socks[asyncio]"]
 
 setup(
     name='Grampo',
-    version='1.1.1',
+    version='1.0.0',
     author='Abbas Bachari',
     author_email='abbas-bachari@hotmail.com',
     description='A Python Telegram API Library , with official Telegram APIs.',
@@ -37,7 +37,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python'
+        'Programming Language :: Python :: 3'
        
     ],
 )

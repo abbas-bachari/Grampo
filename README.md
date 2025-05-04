@@ -1,5 +1,12 @@
-[![Grampo](https://img.shields.io/badge/Grampo%20-Version%201.1.1-green?style=plastic&logo=codemagic)](https://python.org)
-
+<h1 align="center">Grampo</h1>
+<p align="center">
+<a href="https://github.com/abbas-bachari/Grampo"><img src="https://img.shields.io/badge/Grampo%20-Version%201.1.1-green?style=plastic&logo=codemagic" alt="Grampo"></a>
+<a href="https://github.com/abbas-bachari/Grampo"><img src="https://img.shields.io/badge/Python%20-3.7+-green?style=plastic&logo=Python" alt="Python"></a>
+  <a href="https://pypi.org/project/Grampo/"><img src="https://img.shields.io/pypi/v/Grampo?style=plastic" alt="PyPI - Version"></a>
+  <a href="https://pypi.org/project/Grampo/"><img src="https://img.shields.io/pypi/l/Grampo?style=plastic" alt="License"></a>
+  <a href="https://pepy.tech/project/Grampo"><img src="https://pepy.tech/badge/Grampo?style=flat-plastic" alt="Downloads"></a>
+  
+</p>
 
 
 
@@ -9,11 +16,10 @@
 
 
 
-## Installation guide
+## Installation
 
-Install from source:
-``` bash
-pip install git+https://github.com/abbas-bachari/Grampo.git
+```bash
+pip install Grampo
 ```
 
 
