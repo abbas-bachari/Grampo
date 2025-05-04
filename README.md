@@ -1,6 +1,6 @@
 <h1 align="center">Grampo</h1>
 <p align="center">
-<a href="https://github.com/abbas-bachari/Grampo"><img src="https://img.shields.io/badge/Grampo%20-Version%201.1.1-green?style=plastic&logo=codemagic" alt="Grampo"></a>
+<a href="https://github.com/abbas-bachari/Grampo"><img src="https://img.shields.io/badge/Grampo%20-Version%201.0.0-green?style=plastic&logo=codemagic" alt="Grampo"></a>
 <a href="https://github.com/abbas-bachari/Grampo"><img src="https://img.shields.io/badge/Python%20-3.7+-green?style=plastic&logo=Python" alt="Python"></a>
   <a href="https://pypi.org/project/Grampo/"><img src="https://img.shields.io/pypi/v/Grampo?style=plastic" alt="PyPI - Version"></a>
   <a href="https://pypi.org/project/Grampo/"><img src="https://img.shields.io/pypi/l/Grampo?style=plastic" alt="License"></a>
