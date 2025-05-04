@@ -1,10 +1,5 @@
 [![Grampo](https://img.shields.io/badge/Grampo%20-Version%201.1.1-green?style=plastic&logo=codemagic)](https://python.org)
-![PyPI - Version](https://img.shields.io/pypi/v/PanjSim)
-![Python Versions](https://img.shields.io/pypi/pyversions/PanjSim)
-![License](https://img.shields.io/pypi/l/PanjSim)
-![Downloads - Total](https://pepy.tech/badge/PanjSim)
-![Downloads - Monthly](https://pepy.tech/badge/PanjSim/month)
-![Downloads - Weekly](https://pepy.tech/badge/PanjSim/week)
+
 
 
 
