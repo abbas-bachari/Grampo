@@ -8,13 +8,7 @@
   
 </p>
 
-
-
 # A Python Telegram API Library , with official Telegram APIs.
-
-
-
-
 
 ## Installation
 
